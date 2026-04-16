@@ -1,0 +1,33 @@
+{
+  "name": "multi-llm-orchestration-platform",
+  "version": "0.1.0",
+  "description": "A production-grade multi-LLM orchestration platform with a unified chat interface",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:property": "vitest run tests/property",
+    "lint": "eslint src tests --ext .ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.36.3",
+    "better-sqlite3": "11.9.1",
+    "express": "4.21.2",
+    "openai": "4.86.2",
+    "pino": "9.6.0",
+    "uuid": "11.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.12",
+    "@types/express": "5.0.1",
+    "@types/node": "22.13.14",
+    "@types/uuid": "10.0.0",
+    "fast-check": "3.23.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.2",
+    "vitest": "3.0.9"
+  }
+}
