@@ -12,15 +12,15 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 
 ### Phase 1: Database Schema and Persistence Layer
 
-- [-] 1. Set up project structure and dependencies
+- [x] 1. Set up project structure and dependencies
   - Initialize TypeScript Node.js project with tsconfig.json
   - Install dependencies: TypeScript, Node types, Knex or better-sqlite3, fast-check, Jest or Vitest, pino or winston
   - Create directory structure: `src/`, `src/types/`, `src/persistence/`, `src/api/`, `src/orchestrator/`, `src/context-engine/`, `src/providers/`, `src/hooks/`, `src/utils/`, `tests/unit/`, `tests/property/`
   - Set up test framework configuration
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [~] 2. Define database schema and migrations
-  - [~] 2.1 Create SQL migration file for initial schema
+- [x] 2. Define database schema and migrations
+  - [x] 2.1 Create SQL migration file for initial schema
     - Define `users` table with `id`, `created_at`
     - Define `conversations` table with `id`, `user_id`, `created_at`, `updated_at`
     - Define `messages` table with `id`, `conversation_id`, `role`, `content`, `model_used`, `token_count`, `created_at`
@@ -28,20 +28,20 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Add indexes for `conversations.user_id`, `messages.conversation_id`, `usage_logs.conversation_id`
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [~] 2.2 Implement database connection module
+  - [x] 2.2 Implement database connection module
     - Create `src/persistence/db.ts` with connection setup for SQLite (dev) and PostgreSQL (prod)
     - Implement migration runner
     - _Requirements: 2.1_
 
-- [~] 3. Implement repository interfaces and implementations
-  - [~] 3.1 Create repository interfaces
+- [x] 3. Implement repository interfaces and implementations
+  - [x] 3.1 Create repository interfaces
     - Define `UserRepository` interface in `src/persistence/repositories/user-repository.ts`
     - Define `ConversationRepository` interface in `src/persistence/repositories/conversation-repository.ts`
     - Define `MessageRepository` interface in `src/persistence/repositories/message-repository.ts`
     - Define `UsageLogRepository` interface in `src/persistence/repositories/usage-log-repository.ts`
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [~] 3.2 Implement repository classes
+  - [x] 3.2 Implement repository classes
     - Implement `UserRepository` with `create`, `findById` methods
     - Implement `ConversationRepository` with `create`, `findById`, `touch` methods
     - Implement `MessageRepository` with `save`, `findByConversationId` methods
@@ -60,7 +60,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test error handling for database write failures
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.7_
 
-- [~] 4. Checkpoint - Ensure all tests pass
+- [x] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
@@ -68,7 +68,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 ### Phase 2: Core Types and Interfaces
 
 - [~] 5. Define UnifiedMessage and core type system
-  - [~] 5.1 Create UnifiedMessage type
+  - [-] 5.1 Create UnifiedMessage type
     - Define `MessageRole` type as `"system" | "user" | "assistant"`
     - Define `UnifiedMessage` interface with `role: MessageRole` and `content: string`
     - Create `src/types/unified-message.ts`

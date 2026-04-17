@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "New File Rules Check",
+  "description": "When a new TypeScript file is created, checks if it's a provider adapter, repository, property test, or hook file and reminds the implementer of the relevant coding rules for that file type.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "src/**/*.ts",
+      "tests/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new TypeScript file was just created. Check if it belongs to one of these categories and remind the implementer of the relevant rules:\n\n1. **Provider adapter** (`src/providers/*-adapter.ts`): Must implement the `Provider` interface, `generateResponse` must never throw (always return `LLMResponse` with `error` field on failure), must track `latency_ms`, must not hardcode API keys.\n\n2. **Repository** (`src/persistence/repositories/*.impl.ts`): Must implement the corresponding repository interface, must not expose raw SQL errors to callers (wrap in `DatabaseError`).\n\n3. **Property test** (`tests/property/*.property.test.ts`): Must include the `// Feature: multi-llm-orchestration-platform, Property N: <text>` tag comment above each `it()`, must use `{ numRuns: 100 }`.\n\n4. **Hook** (`src/hooks/*.ts`): Must catch and log all exceptions from hook functions without propagating them.\n\nIf the file doesn't match any category, no action needed."
+  }
+}
