@@ -10,12 +10,15 @@ export function validateFields(fields: string[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     for (const field of fields) {
       const value = req.body[field];
-      if (value === undefined || value === null || value === '') {
-        next(
-          new ValidationError(
-            `Field "${field}" is required and must not be empty`
-          )
-        );
+      const strValue = typeof value === 'string' ? value.trim() : value;
+      if (strValue === undefined || strValue === null || strValue === '') {
+        res.status(400).json({
+          error: {
+            error_code: 'VALIDATION_ERROR',
+            message: `Field "${field}" is required and must not be empty`,
+          },
+        });
+        return;
         return;
       }
     }
