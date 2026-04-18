@@ -1,0 +1,13 @@
+{
+  "name": "MultiLLMChat",
+  "displayName": "LLM Chat",
+  "version": "1.0.0",
+  "android": {
+    "package": "com.multillmchat.app",
+    "versionCode": 1
+  },
+  "ios": {
+    "bundleIdentifier": "com.multillmchat.app",
+    "buildNumber": "1"
+  }
+}
