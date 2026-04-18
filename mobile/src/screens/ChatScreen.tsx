@@ -29,9 +29,9 @@ import { useSettingsStore } from '../store/settings.store';
 import {
   getConversation,
   sendMessage,
+  flagMessage,
   ApiClientError,
-} from '../api/client';
-import { MessageBubble } from '../components/MessageBubble';
+} from '../api/client';import { MessageBubble } from '../components/MessageBubble';
 import { MessageInput } from '../components/MessageInput';
 import { OfflineBanner } from '../components/OfflineBanner';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -190,8 +190,14 @@ export function ChatScreen({ route, navigation }: Props): React.JSX.Element {
   );
 
   function handleFlag(messageId: string, reason: FlagReason, details: string) {
-    // In production: POST to a moderation endpoint
-    console.log('Flag submitted', { messageId, reason, details });
+    flagMessage({
+      messageId,
+      conversationId,
+      reason,
+      details,
+    }).catch(() => {
+      // Best-effort — flag failures are non-critical
+    });
   }
 
   const providerColor =

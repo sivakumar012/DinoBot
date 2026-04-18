@@ -5,6 +5,7 @@ import type { MessageRepository } from '../persistence/repositories/message-repo
 import type { HookSystem } from '../hooks/hook-system';
 import { createConversationHandler, getConversationHandler } from './handlers/conversations';
 import { sendMessageHandler } from './handlers/messages';
+import { flagMessageHandler, listFlagsHandler } from './handlers/moderation';
 import { validateFields } from './middleware/validate-request';
 import { createErrorHandler } from './middleware/error-handler';
 
@@ -28,6 +29,12 @@ export function createRouter(
     validateFields(['content', 'provider', 'model']),
     sendMessageHandler(orchestrator)
   );
+
+  // POST /moderation/flag — report AI-generated content (store-compliance)
+  router.post('/moderation/flag', flagMessageHandler());
+
+  // GET /moderation/flags — internal review (protect with auth in production)
+  router.get('/moderation/flags', listFlagsHandler());
 
   // Global error handler (must be last)
   router.use(createErrorHandler(hookSystem));

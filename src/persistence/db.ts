@@ -18,6 +18,7 @@ export async function initializeDatabase(): Promise<Database> {
   const db = new SQL.Database();
 
   // Run the initial migration
+  // __dirname resolves to dist/persistence in production, src/persistence in dev
   const migrationPath = path.join(__dirname, 'migrations', '001_initial_schema.sql');
   const migrationSql = fs.readFileSync(migrationPath, 'utf-8');
   db.run(migrationSql);

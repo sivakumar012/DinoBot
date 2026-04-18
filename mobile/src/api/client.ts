@@ -5,6 +5,8 @@
  * Base URL is configurable via API_BASE_URL (default: localhost:3000 for dev).
  */
 
+import { API_BASE_URL } from './config';
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Conversation {
@@ -63,13 +65,6 @@ export class ApiClientError extends Error {
     this.name = 'ApiClientError';
   }
 }
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-
-// In production, replace with your deployed backend URL.
-// For Android emulator, use 10.0.2.2 instead of localhost.
-const API_BASE_URL =
-  process.env['API_BASE_URL'] ?? 'http://10.0.2.2:3000/api';
 
 // ─── Core fetch wrapper ───────────────────────────────────────────────────────
 
@@ -146,4 +141,25 @@ export async function sendMessage(params: {
       }),
     },
   );
+}
+
+/**
+ * Submits a flag/report for an AI-generated message.
+ * Store-compliance: GenAI Safety 2026 Mandate.
+ */
+export async function flagMessage(params: {
+  messageId: string;
+  conversationId?: string;
+  reason: 'harmful' | 'inaccurate' | 'inappropriate' | 'privacy' | 'other';
+  details?: string;
+}): Promise<{ id: string; status: string }> {
+  return request<{ id: string; status: string }>('/moderation/flag', {
+    method: 'POST',
+    body: JSON.stringify({
+      message_id: params.messageId,
+      conversation_id: params.conversationId,
+      reason: params.reason,
+      details: params.details,
+    }),
+  });
 }

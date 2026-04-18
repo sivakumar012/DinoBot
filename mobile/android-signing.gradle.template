@@ -1,0 +1,27 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// android-signing.gradle.template
+//
+// After running setup.sh, merge this into:
+//   mobile/android/app/build.gradle
+//
+// Inside the `android { ... }` block, add:
+// ─────────────────────────────────────────────────────────────────────────────
+
+signingConfigs {
+    release {
+        if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+            storeFile file(MYAPP_RELEASE_STORE_FILE)
+            storePassword MYAPP_RELEASE_STORE_PASSWORD
+            keyAlias MYAPP_RELEASE_KEY_ALIAS
+            keyPassword MYAPP_RELEASE_KEY_PASSWORD
+        }
+    }
+}
+
+buildTypes {
+    release {
+        signingConfig signingConfigs.release
+        minifyEnabled enableProguardInReleaseBuilds
+        proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+    }
+}

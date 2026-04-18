@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: multi-llm-orchestration-api
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: OPENAI_API_KEY
+        sync: false   # set in Render dashboard
+      - key: ANTHROPIC_API_KEY
+        sync: false   # set in Render dashboard

@@ -87,6 +87,12 @@ async function main(): Promise<void> {
   });
 
   app.use(express.json());
+
+  // Health check — required by Railway, Render, Fly.io
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+  });
+
   app.use('/api', createRouter(orchestrator, conversationRepo, messageRepo, hookSystem));
 
   app.listen(config.port, () => {

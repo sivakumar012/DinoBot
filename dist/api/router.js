@@ -4,6 +4,7 @@ exports.createRouter = createRouter;
 const express_1 = require("express");
 const conversations_1 = require("./handlers/conversations");
 const messages_1 = require("./handlers/messages");
+const moderation_1 = require("./handlers/moderation");
 const validate_request_1 = require("./middleware/validate-request");
 const error_handler_1 = require("./middleware/error-handler");
 function createRouter(orchestrator, conversationRepo, messageRepo, hookSystem) {
@@ -14,6 +15,10 @@ function createRouter(orchestrator, conversationRepo, messageRepo, hookSystem) {
     router.get('/conversations/:id', (0, conversations_1.getConversationHandler)(conversationRepo, messageRepo));
     // POST /conversations/:id/messages — send a message
     router.post('/conversations/:id/messages', (0, validate_request_1.validateFields)(['content', 'provider', 'model']), (0, messages_1.sendMessageHandler)(orchestrator));
+    // POST /moderation/flag — report AI-generated content (store-compliance)
+    router.post('/moderation/flag', (0, moderation_1.flagMessageHandler)());
+    // GET /moderation/flags — internal review (protect with auth in production)
+    router.get('/moderation/flags', (0, moderation_1.listFlagsHandler)());
     // Global error handler (must be last)
     router.use((0, error_handler_1.createErrorHandler)(hookSystem));
     return router;

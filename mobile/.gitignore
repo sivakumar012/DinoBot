@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+android/app/build/
+ios/build/
+ios/Pods/
+*.jks
+*.keystore
+*.p12
+
+# Signing — NEVER commit these
+android/app/release.keystore
+android/gradle.properties
+
+# Metro
+.metro-health-check*
+
+# Environment
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
