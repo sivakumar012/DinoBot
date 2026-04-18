@@ -1,0 +1,1 @@
+{"version":3,"file":"unified-message.d.ts","sourceRoot":"","sources":["../../src/types/unified-message.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,WAAW,GAAG,QAAQ,GAAG,MAAM,GAAG,WAAW,CAAC;AAE1D,MAAM,WAAW,cAAc;IAC7B,IAAI,EAAE,WAAW,CAAC;IAClB,OAAO,EAAE,MAAM,CAAC;CACjB"}
