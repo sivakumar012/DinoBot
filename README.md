@@ -1,20 +1,34 @@
 # Multi-LLM Orchestration Platform
 
-A production-grade TypeScript/Node.js backend service for persistent multi-provider LLM conversations. Route individual messages to OpenAI or Anthropic while preserving full conversation context across providers. Every request is tracked for token usage, cost, and latency.
+> A production-grade TypeScript/Node.js backend + React Native mobile app for persistent AI conversations — route messages to OpenAI or Anthropic, switch models per message, and track every request for tokens, cost, and latency.
+
+---
+
+## What This Is
+
+A full-stack AI chat system with two parts:
+
+- **Backend** (`src/`) — Express REST API with a 7-step orchestration pipeline, context engine, provider registry, hook system, and SQLite persistence
+- **Mobile** (`mobile/`) — React Native app for iOS and Android, Play Store and App Store compliant, with AI disclosure, offline resilience, and content flagging
 
 ---
 
 ## Architecture
 
-The platform is a single-process service built from composable, loosely-coupled modules:
-
 ```
-Client → API Layer (Express)
-           → Orchestrator (7-step pipeline)
-               → Context Engine (FIFO trimming)
-               → Provider Registry → OpenAI / Anthropic adapters
-               → Hook System (beforeRequest / afterResponse / onError)
-               → Persistence Layer (SQLite in-memory)
+React Native App (iOS / Android)
+        │
+        ▼ REST API
+┌─────────────────────────────────────────┐
+│  Express API Layer                      │
+│    └── Orchestrator (7-step pipeline)   │
+│          ├── Context Engine (FIFO trim) │
+│          ├── Provider Registry          │
+│          │     ├── OpenAI Adapter       │
+│          │     └── Anthropic Adapter    │
+│          ├── Hook System                │
+│          └── Persistence (SQLite)       │
+└─────────────────────────────────────────┘
 ```
 
 ### 7-Step Request Pipeline
@@ -34,49 +48,39 @@ Every message goes through these steps in strict order:
 ## Project Structure
 
 ```
-src/
-├── index.ts                          # Entry point — wires all modules, starts server
-├── config.ts                         # Env var loading, MODEL_TOKEN_LIMITS
-├── types/
-│   ├── unified-message.ts            # UnifiedMessage type
-│   ├── llm-response.ts               # LLMResponse, LLMError types
-│   ├── provider.ts                   # Provider interface, GenerateParams
-│   ├── hook.ts                       # HookEvent, HookFn, context types
-│   └── index.ts                      # Re-exports
-├── api/
-│   ├── router.ts                     # Route definitions
-│   ├── middleware/
-│   │   ├── validate-request.ts       # Field presence/non-empty validation
-│   │   └── error-handler.ts          # Global error boundary (no stack traces)
-│   └── handlers/
-│       ├── conversations.ts          # POST /conversations, GET /conversations/:id
-│       └── messages.ts               # POST /conversations/:id/messages
-├── orchestrator/
-│   └── orchestrator.ts               # Core 7-step pipeline
-├── context-engine/
-│   ├── context-engine.ts             # Context assembly + strategy dispatch
-│   ├── token-counter.ts              # Approximate token counting (~1.3 tokens/word)
-│   └── strategies/
-│       └── fifo-trim.ts              # V1 FIFO trimming strategy
-├── providers/
-│   ├── registry.ts                   # ProviderRegistry — name → Provider map
-│   ├── openai-adapter.ts             # OpenAI Chat Completions adapter
-│   └── anthropic-adapter.ts          # Anthropic Messages API adapter
-├── hooks/
-│   └── hook-system.ts                # registerHook, dispatch, error isolation
-├── persistence/
-│   ├── db.ts                         # sql.js in-memory SQLite singleton
-│   ├── cost-rates.ts                 # Cost rate table + calculateCost()
-│   ├── migrations/
-│   │   └── 001_initial_schema.sql    # users, conversations, messages, usage_logs
-│   └── repositories/
-│       ├── user-repository.ts / .impl.ts
-│       ├── conversation-repository.ts / .impl.ts
-│       ├── message-repository.ts / .impl.ts
-│       └── usage-log-repository.ts / .impl.ts
-└── utils/
-    ├── logger.ts                     # Structured pino logger
-    └── errors.ts                     # PlatformError, ValidationError, ProviderError, etc.
+├── src/                              # Backend (Node.js / TypeScript)
+│   ├── index.ts                      # Entry point — wires all modules, starts server
+│   ├── config.ts                     # Env var loading, MODEL_TOKEN_LIMITS
+│   ├── types/                        # UnifiedMessage, LLMResponse, Provider, HookFn
+│   ├── api/
+│   │   ├── router.ts                 # Route definitions
+│   │   ├── middleware/               # validate-request.ts, error-handler.ts
+│   │   └── handlers/
+│   │       ├── conversations.ts      # POST /conversations, GET /conversations/:id
+│   │       ├── messages.ts           # POST /conversations/:id/messages
+│   │       └── moderation.ts         # POST /moderation/flag, GET /moderation/flags
+│   ├── orchestrator/orchestrator.ts  # Core 7-step pipeline
+│   ├── context-engine/               # Context assembly + FIFO trimming strategy
+│   ├── providers/                    # ProviderRegistry, OpenAI + Anthropic adapters
+│   ├── hooks/hook-system.ts          # registerHook, dispatch, error isolation
+│   ├── persistence/                  # sql.js SQLite, repositories, cost rates
+│   └── utils/                        # Structured logger (pino), typed errors
+│
+├── mobile/                           # React Native app (iOS + Android)
+│   ├── App.tsx                       # Root: navigation + AI disclosure gate
+│   ├── src/
+│   │   ├── api/client.ts             # Typed API client
+│   │   ├── store/                    # Zustand: chat state + settings
+│   │   ├── screens/                  # Home, Chat, Settings
+│   │   ├── components/               # MessageBubble, ProviderPicker, OfflineBanner,
+│   │   │                             # AIDisclosure, ReportFlagModal, UsageBadge
+│   │   ├── hooks/                    # useNetInfo, useStreamingDots
+│   │   └── theme/                    # Design tokens (colors, spacing, typography)
+│   └── scripts/                      # Keystore generation + AAB release build
+│
+├── Dockerfile                        # Production container
+├── render.yaml                       # One-click Render deploy
+└── fly.toml                          # Fly.io deploy config
 ```
 
 ---
@@ -86,102 +90,68 @@ src/
 All routes are mounted under `/api`.
 
 ### `POST /api/conversations`
-
 Create a new conversation.
 
-**Request body:**
 ```json
+// Request
 { "user_id": "string" }
-```
 
-**Response `201`:**
-```json
-{
-  "id": "uuid",
-  "user_id": "uuid",
-  "created_at": "ISO8601",
-  "updated_at": "ISO8601"
-}
+// Response 201
+{ "id": "uuid", "user_id": "uuid", "created_at": "ISO8601", "updated_at": "ISO8601" }
 ```
-
----
 
 ### `GET /api/conversations/:id`
-
 Retrieve a conversation and its messages.
 
-**Response `200`:**
 ```json
+// Response 200
 {
   "id": "uuid",
   "user_id": "uuid",
   "created_at": "ISO8601",
   "updated_at": "ISO8601",
   "messages": [
-    {
-      "id": "uuid",
-      "role": "user | assistant | system",
-      "content": "string",
-      "model_used": "string | null",
-      "token_count": 42,
-      "created_at": "ISO8601"
-    }
+    { "id": "uuid", "role": "user | assistant | system", "content": "string",
+      "model_used": "string | null", "token_count": 42, "created_at": "ISO8601" }
   ]
 }
 ```
 
-**Response `404`:**
-```json
-{ "error": { "error_code": "NOT_FOUND", "message": "Conversation with id \"...\" not found" } }
-```
-
----
-
 ### `POST /api/conversations/:id/messages`
-
 Send a user message and receive an assistant response.
 
-**Request body:**
 ```json
-{
-  "content": "string",
-  "provider": "openai | anthropic",
-  "model": "string",
-  "temperature": 0.7,
-  "max_tokens": 1024
-}
-```
-`temperature` and `max_tokens` are optional.
+// Request
+{ "content": "string", "provider": "openai | anthropic", "model": "string",
+  "temperature": 0.7, "max_tokens": 1024 }
 
-**Response `200`:**
-```json
+// Response 200
 {
-  "message": {
-    "id": "uuid",
-    "role": "assistant",
-    "content": "string",
-    "model_used": "string",
-    "created_at": "ISO8601"
-  },
-  "usage": {
-    "provider": "openai",
-    "model": "gpt-4o",
-    "tokens_in": 512,
-    "tokens_out": 128,
-    "latency_ms": 843,
-    "estimated_cost": 0.00448
-  }
+  "message": { "id": "uuid", "role": "assistant", "content": "string",
+               "model_used": "string", "created_at": "ISO8601" },
+  "usage": { "provider": "openai", "model": "gpt-4o", "tokens_in": 512,
+             "tokens_out": 128, "latency_ms": 843, "estimated_cost": 0.00448 }
 }
 ```
 
-**Response `400`** (missing/empty field):
+### `POST /api/moderation/flag`
+Report an AI-generated message (store-compliance: GenAI Safety 2026).
+
 ```json
-{ "error": { "error_code": "VALIDATION_ERROR", "message": "Field \"provider\" is required and must not be empty" } }
+// Request
+{ "message_id": "uuid", "conversation_id": "uuid",
+  "reason": "harmful | inaccurate | inappropriate | privacy | other",
+  "details": "optional string" }
+
+// Response 201
+{ "id": "uuid", "status": "received" }
 ```
 
-**Response `502`** (provider error):
+### `GET /health`
+Health check for deployment platforms (Railway, Render, Fly.io).
+
 ```json
-{ "error": { "error_code": "PROVIDER_ERROR", "message": "...", "provider": "openai", "model": "gpt-4o" } }
+{ "status": "ok", "uptime": 42.3 }
 ```
 
 ---
@@ -215,20 +185,53 @@ API keys are never hardcoded — credentials are loaded exclusively from environ
 
 ---
 
-## Running the Project
+## Running the Backend
 
 ```bash
-# Install dependencies
 npm install
+npm run dev        # Development with ts-node
+npm run build      # Compile TypeScript → dist/
+npm run lint       # ESLint
+```
 
-# Development (ts-node, hot reload not included)
-npm run dev
+## Running the Mobile App
 
-# Build TypeScript to dist/
-npm run build
+```bash
+# First-time setup (generates android/ and ios/ native projects)
+bash mobile/setup.sh
 
-# Lint
-npm run lint
+cd mobile
+npm start          # Metro bundler
+npm run android    # Android emulator
+npm run ios        # iOS simulator
+```
+
+See `mobile/README.md` for full mobile setup instructions.
+
+---
+
+## Deployment
+
+### Render (recommended for quick start)
+```bash
+# Push to GitHub, connect repo in Render dashboard, select render.yaml
+# Set OPENAI_API_KEY and ANTHROPIC_API_KEY in Render environment settings
+```
+
+### Fly.io
+```bash
+fly launch
+fly secrets set OPENAI_API_KEY=... ANTHROPIC_API_KEY=...
+fly deploy
+```
+
+### Docker
+```bash
+docker build -t multi-llm-api .
+docker run -p 3000:3000 \
+  -e OPENAI_API_KEY=... \
+  -e ANTHROPIC_API_KEY=... \
+  multi-llm-api
 ```
 
 ---
@@ -236,94 +239,48 @@ npm run lint
 ## Testing
 
 ```bash
-# Run all tests
-npm test
-
-# Unit tests only
-npm run test:unit
-
-# Property-based tests only
-npm run test:property
+npm test                # All tests
+npm run test:unit       # Unit tests only
+npm run test:property   # Property-based tests only
 ```
 
-**Current status: 17 test files, 108 tests, all passing.**
+**17 test files · 108 tests · all passing**
 
-### Test layout
+Property tests use [fast-check](https://github.com/dubzzz/fast-check) with 100 runs minimum each, validating 15 correctness properties defined in `.kiro/specs/multi-llm-orchestration-platform/design.md`.
 
-```
-tests/
-├── unit/
-│   ├── setup.test.ts
-│   ├── api/
-│   │   ├── conversations.test.ts
-│   │   └── messages.test.ts
-│   ├── context-engine/
-│   │   └── context-engine.test.ts
-│   ├── hooks/
-│   │   └── hook-system.test.ts
-│   ├── orchestrator/
-│   │   └── orchestrator.test.ts
-│   └── persistence/
-│       └── repositories.test.ts
-└── property/
-    ├── setup.property.test.ts
-    ├── unified-message.property.test.ts      # Property 1
-    ├── llm-response.property.test.ts         # Property 2
-    ├── provider-adapters.property.test.ts    # Properties 3, 4, 5
-    ├── persistence.property.test.ts          # Property 6
-    ├── context-engine.property.test.ts       # Properties 7, 8
-    ├── hook-system.property.test.ts          # Properties 9, 10
-    ├── usage-tracking.property.test.ts       # Properties 11, 12
-    ├── api-validation.property.test.ts       # Properties 13, 14
-    └── provider-registry.property.test.ts    # Property 15
-```
+---
 
-Property tests use [fast-check](https://github.com/dubzzz/fast-check) with a minimum of 100 runs each. Each property maps 1:1 to a numbered correctness property in `.kiro/specs/multi-llm-orchestration-platform/design.md`.
+## Store Compliance (Mobile)
 
-Repository unit tests use a real in-memory SQLite database — the DB layer is never mocked in persistence tests.
+| Requirement | Implementation |
+|---|---|
+| AI Use Disclosure (2026 Mandate) | `AIDisclosure` modal on first launch |
+| Report/Flag mechanism | 🚩 button on every assistant message |
+| Offline resilience | `OfflineBanner` + disabled send on every screen |
+| No dynamic code | No eval(), no remote JS loading |
+| Privacy-first | Zero permissions requested |
+| State management | Zustand (industry standard) |
 
 ---
 
 ## Adding a New Provider
 
-1. Implement the `Provider` interface in `src/providers/your-adapter.ts`:
+1. Implement `Provider` interface in `src/providers/your-adapter.ts`
+2. Add cost rates to `DEFAULT_COST_RATES` in `src/persistence/cost-rates.ts`
+3. Add token limits to `MODEL_TOKEN_LIMITS` in `src/config.ts`
+4. Register in `src/index.ts` — no other files need changing
 
-```typescript
-import type { Provider, GenerateParams } from '../types/provider';
-import type { LLMResponse } from '../types/llm-response';
-
-export class YourAdapter implements Provider {
-  async generateResponse(params: GenerateParams): Promise<LLMResponse> {
-    const start = Date.now();
-    try {
-      // call your API...
-      return { content, tokens_in, tokens_out, latency_ms: Date.now() - start, model: params.model };
-    } catch (err) {
-      return { content: '', tokens_in: 0, tokens_out: 0, latency_ms: Date.now() - start, model: params.model,
-        error: { error_code: 'YOUR_ERROR', message: String(err) } };
-    }
-  }
-}
-```
-
-2. Register it in `src/index.ts`:
-
-```typescript
-registry.register('yourprovider', new YourAdapter(client));
-```
-
-No changes to the Orchestrator, Context Engine, or Hook System are required.
+See `.kiro/steering/adding-providers.md` for the full guide.
 
 ---
 
 ## Key Design Decisions
 
-- **Registry pattern** — the Orchestrator never imports a provider directly; it resolves adapters by name at request time.
-- **Strategy pattern** — the Context Engine accepts a `TrimStrategy` function as a constructor argument, making FIFO and future summarization strategies interchangeable.
-- **Hooks are fire-and-forget** — a throwing hook is caught and logged; it never interrupts the main pipeline.
-- **Every request gets a UsageLog** — including failed requests (`error_status` is set on failure).
-- **No stack traces in API responses** — errors are logged internally via pino; responses return structured JSON only.
-- **SQLite in-process** — uses `sql.js` (WebAssembly SQLite) for zero-dependency local development. Schema is in `src/persistence/migrations/001_initial_schema.sql`.
+- **Registry pattern** — the Orchestrator resolves providers by name at request time, never imports them directly
+- **Strategy pattern** — the Context Engine accepts `TrimStrategy` as an injected dependency, making FIFO and future summarization strategies interchangeable
+- **Hooks are fire-and-forget** — a throwing hook is caught and logged, never interrupting the main pipeline
+- **Every request gets a UsageLog** — including failed requests (`error_status` set on failure)
+- **No stack traces in API responses** — errors logged internally via pino, responses return structured JSON only
 
 ---
 
@@ -340,3 +297,6 @@ No changes to the Orchestrator, Context Engine, or Hook System are required.
 | UUIDs | uuid | 11.1 |
 | Test runner | vitest | 3.0 |
 | Property tests | fast-check | 3.23 |
+| Mobile framework | React Native | 0.76 |
+| Mobile state | Zustand | 5.0 |
+| Mobile navigation | React Navigation | 6.x |
