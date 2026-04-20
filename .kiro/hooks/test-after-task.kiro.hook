@@ -8,6 +8,6 @@
   },
   "then": {
     "type": "runCommand",
-    "command": "npm test"
+    "command": "npx vitest run"
   }
 }
