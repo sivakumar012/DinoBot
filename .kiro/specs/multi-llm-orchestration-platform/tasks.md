@@ -67,8 +67,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 
 ### Phase 2: Core Types and Interfaces
 
-- [~] 5. Define UnifiedMessage and core type system
-  - [-] 5.1 Create UnifiedMessage type
+- [-] 5. Define UnifiedMessage and core type system
+  - [x] 5.1 Create UnifiedMessage type
     - Define `MessageRole` type as `"system" | "user" | "assistant"`
     - Define `UnifiedMessage` interface with `role: MessageRole` and `content: string`
     - Create `src/types/unified-message.ts`
