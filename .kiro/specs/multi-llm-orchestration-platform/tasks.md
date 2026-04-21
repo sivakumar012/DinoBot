@@ -80,7 +80,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test that any UnifiedMessage has role in {"system", "user", "assistant"} and content is a string
     - _Requirements: 1.1_
 
-  - [~] 5.3 Create LLMResponse type
+  - [ ] 5.3 Create LLMResponse type
     - Define `LLMError` interface with `error_code: string` and `message: string`
     - Define `LLMResponse` interface with `content`, `tokens_in`, `tokens_out`, `latency_ms`, `model`, and optional `error`
     - Create `src/types/llm-response.ts`
@@ -92,20 +92,20 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test that any LLMResponse contains all five required fields
     - _Requirements: 1.3_
 
-  - [~] 5.5 Create Provider interface
+  - [ ] 5.5 Create Provider interface
     - Define `GenerateParams` interface with `model`, `messages`, optional `temperature`, optional `max_tokens`
     - Define `Provider` interface with `generateResponse(params: GenerateParams): Promise<LLMResponse>`
     - Create `src/types/provider.ts`
     - _Requirements: 1.2_
 
-  - [~] 5.6 Create Hook types
+  - [ ] 5.6 Create Hook types
     - Define `HookEvent` type as `"beforeRequest" | "afterResponse" | "onError"`
     - Define `BeforeRequestContext`, `AfterResponseContext`, `OnErrorContext` interfaces
     - Define `HookFn<T>` type
     - Create `src/types/hook.ts`
     - _Requirements: 6.1, 6.4, 6.5, 6.6_
 
-  - [~] 5.7 Create type index file
+  - [ ] 5.7 Create type index file
     - Re-export all types from `src/types/index.ts`
     - _Requirements: 1.1, 1.2, 1.3_
 
@@ -113,8 +113,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 
 ### Phase 3: Provider Adapters
 
-- [~] 6. Implement OpenAI adapter
-  - [~] 6.1 Create OpenAI adapter class
+- [ ] 6. Implement OpenAI adapter
+  - [ ] 6.1 Create OpenAI adapter class
     - Implement `OpenAIAdapter` class that implements `Provider` interface
     - Implement `generateResponse` method that converts UnifiedMessage[] to OpenAI Chat Completions format
     - Call OpenAI API and normalize response to LLMResponse
@@ -141,8 +141,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test latency tracking
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [~] 7. Implement Anthropic adapter
-  - [~] 7.1 Create Anthropic adapter class
+- [ ] 7. Implement Anthropic adapter
+  - [ ] 7.1 Create Anthropic adapter class
     - Implement `AnthropicAdapter` class that implements `Provider` interface
     - Implement `generateResponse` method that separates system messages from conversation messages
     - Convert UnifiedMessage[] to Anthropic Messages API format (system as separate parameter)
@@ -165,8 +165,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test latency tracking
     - _Requirements: 3.5, 3.6, 3.7, 3.8_
 
-- [~] 8. Implement Provider Registry
-  - [~] 8.1 Create ProviderRegistry class
+- [ ] 8. Implement Provider Registry
+  - [ ] 8.1 Create ProviderRegistry class
     - Implement `register(name, adapter)` method with Provider interface validation
     - Implement `resolve(name)` method that returns registered adapter or throws error
     - Implement `list()` method that returns array of registered provider names
@@ -186,20 +186,20 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test list returns all registered names
     - _Requirements: 1.4, 10.5_
 
-- [~] 9. Checkpoint - Ensure all tests pass
+- [ ] 9. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
 
 ### Phase 4: Context Engine
 
-- [~] 10. Implement token counting utility
+- [ ] 10. Implement token counting utility
   - Create `src/context-engine/token-counter.ts` with approximate token counting function
   - Implement simple heuristic (e.g., word count * 1.3) or integrate tiktoken library
   - _Requirements: 4.2_
 
-- [~] 11. Implement FIFO trimming strategy
-  - [~] 11.1 Create FIFO trim strategy function
+- [ ] 11. Implement FIFO trimming strategy
+  - [ ] 11.1 Create FIFO trim strategy function
     - Implement `TrimStrategy` function type
     - Implement `fifoTrim` function that removes oldest non-system messages until under token limit
     - Preserve system messages during trimming
@@ -219,8 +219,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test trimming stops when under token limit
     - _Requirements: 4.2, 4.3_
 
-- [~] 12. Implement Context Engine
-  - [~] 12.1 Create ContextEngine class
+- [ ] 12. Implement Context Engine
+  - [ ] 12.1 Create ContextEngine class
     - Define `ContextEngineOptions` interface with `trimStrategy` and `modelTokenLimits`
     - Implement `buildContext(history, model)` method that applies trim strategy
     - Log trimming events with structured logger
@@ -241,21 +241,21 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test structured logging of trim events
     - _Requirements: 4.1, 4.2, 4.4, 4.6_
 
-- [~] 13. Create model token limits configuration
+- [ ] 13. Create model token limits configuration
   - Define `MODEL_TOKEN_LIMITS` constant in `src/config.ts` with limits for all supported models
   - Include OpenAI models: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo
   - Include Anthropic models: claude-3-5-sonnet, claude-3-5-haiku, claude-3-opus
   - _Requirements: 4.2_
 
-- [~] 14. Checkpoint - Ensure all tests pass
+- [ ] 14. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
 
 ### Phase 5: Hook System
 
-- [~] 15. Implement Hook System
-  - [~] 15.1 Create HookSystem class
+- [ ] 15. Implement Hook System
+  - [ ] 15.1 Create HookSystem class
     - Implement `registerHook(event, fn)` method that stores hooks in a map by event type
     - Implement `dispatch(event, context)` method that invokes all registered hooks in order
     - Catch and log exceptions from individual hooks without propagating
@@ -285,15 +285,15 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 
 ### Phase 6: Usage Tracking and Cost Calculation
 
-- [~] 16. Implement cost rate table and calculation
-  - [~] 16.1 Create cost rate table
+- [ ] 16. Implement cost rate table and calculation
+  - [ ] 16.1 Create cost rate table
     - Define `CostRate` interface with `input_per_1k_tokens` and `output_per_1k_tokens`
     - Define `CostRateTable` type as nested record of provider → model → CostRate
     - Define `DEFAULT_COST_RATES` constant with rates for OpenAI and Anthropic models
     - Create `src/persistence/cost-rates.ts`
     - _Requirements: 7.4_
 
-  - [~] 16.2 Implement cost calculation function
+  - [ ] 16.2 Implement cost calculation function
     - Implement `calculateCost(rates, provider, model, tokensIn, tokensOut)` function
     - Return 0 for unknown provider/model combinations
     - Create function in `src/persistence/cost-rates.ts`
@@ -314,15 +314,15 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
 
 ### Phase 7: Orchestrator
 
-- [~] 17. Implement Orchestrator
-  - [~] 17.1 Create Orchestrator class
+- [ ] 17. Implement Orchestrator
+  - [ ] 17.1 Create Orchestrator class
     - Define `OrchestratorRequest` interface with `conversation_id`, `content`, `provider`, `model`, optional `temperature`, optional `max_tokens`
     - Define `OrchestratorResult` interface with `message` and `usage` fields
     - Implement constructor accepting ProviderRegistry, ContextEngine, HookSystem, repositories, and CostRateTable
     - Create `src/orchestrator/orchestrator.ts`
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
 
-  - [~] 17.2 Implement 7-step request lifecycle
+  - [ ] 17.2 Implement 7-step request lifecycle
     - Step 1: Load conversation history from MessageRepository
     - Step 2: Dispatch beforeRequest hooks with conversation context
     - Step 3: Invoke ContextEngine.buildContext with history and model
@@ -332,7 +332,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Step 7: Return OrchestratorResult with message and usage summary
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.6_
 
-  - [~] 17.3 Implement error handling in orchestrator
+  - [ ] 17.3 Implement error handling in orchestrator
     - Catch provider errors and dispatch onError hooks
     - Persist UsageLog with error_status for failed requests
     - Return structured error response without crashing
@@ -352,27 +352,27 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test cost calculation is applied
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [~] 18. Checkpoint - Ensure all tests pass
+- [ ] 18. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
 
 ### Phase 8: API Layer
 
-- [~] 19. Implement error handling utilities
-  - [~] 19.1 Create typed error classes
+- [ ] 19. Implement error handling utilities
+  - [ ] 19.1 Create typed error classes
     - Define `PlatformError` base class with `error_code`, `message`, `statusCode`
     - Define `ValidationError`, `ProviderError`, `NotFoundError`, `DatabaseError` subclasses
     - Create `src/utils/errors.ts`
     - _Requirements: 9.1, 9.4_
 
-  - [~] 19.2 Create structured logger
+  - [ ] 19.2 Create structured logger
     - Set up pino or winston with structured logging configuration
     - Create `src/utils/logger.ts`
     - _Requirements: 9.2_
 
-- [~] 20. Implement API request validation middleware
-  - [~] 20.1 Create validation middleware
+- [ ] 20. Implement API request validation middleware
+  - [ ] 20.1 Create validation middleware
     - Implement middleware that validates required fields are present and non-empty
     - Return HTTP 400 with descriptive error for missing/empty fields
     - Create `src/api/middleware/validate-request.ts`
@@ -384,8 +384,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test that any request with missing/empty required field returns HTTP 400 with field name
     - _Requirements: 8.7, 8.8_
 
-- [~] 21. Implement global error handler middleware
-  - [~] 21.1 Create error handler middleware
+- [ ] 21. Implement global error handler middleware
+  - [ ] 21.1 Create error handler middleware
     - Catch all unhandled exceptions at API boundary
     - Dispatch onError hooks
     - Return structured JSON error response with appropriate HTTP status
@@ -399,8 +399,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test that any error returns structured JSON with error_code and message, no stack trace
     - _Requirements: 8.6, 9.1, 9.4_
 
-- [~] 22. Implement conversation endpoints
-  - [~] 22.1 Create conversation handlers
+- [ ] 22. Implement conversation endpoints
+  - [ ] 22.1 Create conversation handlers
     - Implement POST /conversations handler that creates new conversation
     - Implement GET /conversations/:id handler that retrieves conversation with messages
     - Return HTTP 404 for non-existent conversations
@@ -413,8 +413,8 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test GET /conversations/:id returns 404 for non-existent id
     - _Requirements: 8.1, 8.2_
 
-- [~] 23. Implement message endpoint
-  - [~] 23.1 Create message handler
+- [ ] 23. Implement message endpoint
+  - [ ] 23.1 Create message handler
     - Implement POST /conversations/:id/messages handler
     - Validate request fields using validation middleware
     - Delegate to Orchestrator.process
@@ -429,15 +429,15 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test orchestrator errors return appropriate HTTP status
     - _Requirements: 8.3, 8.4, 8.5, 8.6_
 
-- [~] 24. Wire up API router and server
-  - [~] 24.1 Create API router
+- [ ] 24. Wire up API router and server
+  - [ ] 24.1 Create API router
     - Define all routes with handlers and middleware
     - Apply validation middleware to message endpoint
     - Apply global error handler
     - Create `src/api/router.ts`
     - _Requirements: 8.1, 8.2, 8.3_
 
-  - [~] 24.2 Create application entry point
+  - [ ] 24.2 Create application entry point
     - Load environment variables and configuration
     - Initialize database connection and run migrations
     - Create and register provider adapters (OpenAI, Anthropic)
@@ -450,21 +450,21 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Create `src/index.ts`
     - _Requirements: 1.4, 3.9, 4.5, 6.8, 10.2, 10.3, 10.4_
 
-  - [~] 24.3 Create configuration module
+  - [ ] 24.3 Create configuration module
     - Load environment variables for API keys, database URL, port
     - Validate required environment variables are present
     - Export MODEL_TOKEN_LIMITS constant
     - Create `src/config.ts`
     - _Requirements: 3.9_
 
-- [~] 25. Checkpoint - Ensure all tests pass
+- [ ] 25. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---
 
 ### Phase 9: Integration and Final Validation
 
-- [~] 26. Write integration tests
+- [ ] 26. Write integration tests
   - [ ]* 26.1 Write end-to-end integration tests
     - Test full request flow: create conversation → send message → retrieve conversation
     - Test with mock provider adapters
@@ -473,7 +473,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
     - Test hook system integration
     - _Requirements: 5.1, 8.1, 8.2, 8.3_
 
-- [~] 27. Create README and documentation
+- [ ] 27. Create README and documentation
   - Document API endpoints with request/response examples
   - Document environment variables required
   - Document how to run migrations
@@ -481,7 +481,7 @@ The tech stack is TypeScript/Node.js with fast-check for property-based testing,
   - Document how to add new provider adapters
   - _Requirements: 10.4_
 
-- [~] 28. Final checkpoint - Ensure all tests pass
+- [ ] 28. Final checkpoint - Ensure all tests pass
   - Run full test suite (unit + property + integration)
   - Verify all 15 correctness properties pass
   - Ensure all tests pass, ask the user if questions arise.

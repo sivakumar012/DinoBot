@@ -100,12 +100,12 @@ tests/
 |---|---|---|
 | 1 | Database schema, migrations, repositories | ✅ Complete |
 | 2 | Core types and interfaces | ✅ Complete |
-| 3 | Provider adapters (OpenAI, Anthropic, Registry) | 🔄 In progress |
-| 4 | Context Engine (token counting, FIFO trim) | 🔄 In progress |
-| 5 | Hook System | 🔄 In progress |
-| 6 | Usage tracking and cost calculation | 🔄 In progress |
-| 7 | Orchestrator (7-step pipeline) | 🔄 In progress |
-| 8 | API Layer (routes, middleware, handlers) | 🔄 In progress |
+| 3 | Provider adapters (OpenAI, Anthropic, Registry) | ⏳ Pending |
+| 4 | Context Engine (token counting, FIFO trim) | ⏳ Pending |
+| 5 | Hook System | ⏳ Pending |
+| 6 | Usage tracking and cost calculation | ⏳ Pending |
+| 7 | Orchestrator (7-step pipeline) | ⏳ Pending |
+| 8 | API Layer (routes, middleware, handlers) | ⏳ Pending |
 | 9 | Integration tests, README, final validation | ⏳ Pending |
 
 ---
@@ -243,6 +243,8 @@ npm run test:property    # Property-based tests only
 ```
 
 Property tests use [fast-check](https://github.com/dubzzz/fast-check) with a minimum of 100 runs each, validating 15 correctness properties defined in the design document.
+
+> **Note:** Tests are run via `npx vitest run` internally — no global install of vitest required.
 
 ---
 
